@@ -12,11 +12,7 @@ Sitio estático, sin servidor ni dependencias. Abre `index.html` en el navegador
 
 ## Noticias por estado
 Las noticias vienen de Google News (RSS público, últimos 14 días, una consulta por estado) y se guardan en `noticias.js`.
-El navegador no puede consultarlas directo, así que se actualizan con un script (tarda ~1 minuto):
 
-```bash
-python3 scripts/actualizar_noticias.py
-```
 
 
 El tema de cada nota y el **índice de preocupación mediática** (0–100) se calculan en el navegador con las palabras clave de `data.js`:
