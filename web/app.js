@@ -10,7 +10,7 @@
   function showTab(id) {
     document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === id)));
     document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === id));
-    try { localStorage.setItem("tab", id); } catch (e) {}
+    try { localStorage.setItem("tab", id); } catch (e) { }
     if (id === "clima" && !climaCargado) cargarNoticias();
   }
   document.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", (ev) => { ev.preventDefault(); showTab(b.dataset.tab); window.scrollTo({ top: 0, behavior: "smooth" }); }));
@@ -127,12 +127,14 @@
     const o = Array.isArray(a) ? { t: a[0], f: a[1], d: a[2] && a[2].length === 5 ? "2026-" + a[2] : a[2] } : a;
     const t = " " + norm(o.t) + " ";
     const tema = clasificar(o.t);
-    return { ...o, tema, e: estado || o.e || "",
+    return {
+      ...o, tema, e: estado || o.e || "",
       claves: D.temas[tema] ? D.temas[tema].claves.filter((c) => t.includes(c)).map((c) => c.trim()) : [],
       negs: D.negativas.filter((w) => t.includes(w)),
       get neg() { return this.negs.length > 0; },
       directo: !!o.u,
-      u: o.u || "https://news.google.com/search?q=" + encodeURIComponent(o.t) + "&hl=es-419&gl=MX&ceid=MX:es-419" };
+      u: o.u || "https://news.google.com/search?q=" + encodeURIComponent(o.t) + "&hl=es-419&gl=MX&ceid=MX:es-419"
+    };
   }
   function resumen(notas) {
     const n = notas.length, cuenta = {};
@@ -382,15 +384,15 @@
         ${r.cuenta.otros ? `<button class="chip" aria-pressed="${filtroTema === "otros"}" data-t="otros">Otros (${r.cuenta.otros})</button>` : ""}
       </div>
       <div class="card lista-notas">${(VISIBLES = notas.filter((a) => !filtroTema || a.tema === filtroTema).slice(0, 40)).map((a, i) => {
-        const t = D.temas[a.tema];
-        return `<button class="nota" data-i="${i}"><span class="pill" style="--c:${t ? t.color : "#8a8378"}">${t ? esc(t.nombre) : "Otros"}</span>${a.neg ? '<span class="negtag">tono negativo</span>' : ""}
+      const t = D.temas[a.tema];
+      return `<button class="nota" data-i="${i}"><span class="pill" style="--c:${t ? t.color : "#8a8378"}">${t ? esc(t.nombre) : "Otros"}</span>${a.neg ? '<span class="negtag">tono negativo</span>' : ""}
           <span class="nt">${esc(a.t)}</span>
           <span class="meta">${esc(a.f || "")}${a.d ? " · " + fechaCorta(a.d) : ""}${sel === "NAC" && a.e ? " · " + esc(ESTADO[a.e].n) : ""}</span></button>`;
-      }).join("")}</div>`;
+    }).join("")}</div>`;
     $("#clima-detalle").querySelectorAll(".lista-notas .nota").forEach((b) => b.addEventListener("click", () => abrirNota(VISIBLES[+b.dataset.i])));
     $("#clima-detalle").querySelectorAll("#tema-chips .chip").forEach((b) => b.addEventListener("click", () => { filtroTema = b.dataset.t; pintarDetalle(); }));
     const g = $("#clima-detalle [data-gen]");
-    if (g) g.addEventListener("click", () => { $("#g-tema").value = g.dataset.gen; showTab("mensajes"); generar(); window.scrollTo({ top: 0, behavior: "smooth" }); });
+    if (g) g.addEventListener("click", () => { $("#g-tema").value = g.dataset.gen; $("#c-estado").value = sel === "NAC" ? "" : sel; showTab("mensajes"); generar(); window.scrollTo({ top: 0, behavior: "smooth" }); });
   }
 
   /* ---------- Generador de mensajes ---------- */
@@ -450,6 +452,7 @@
     const e = D.estrategias.find((x) => x.id === perfil);
     $("#g-porque").innerHTML = `<p><b>Por qué:</b> ${esc(e.nota)}</p>` + (tema ? `<p><b>Clima:</b> ${esc(D.temas[tema].responder)}</p>` : "") +
       `<p>Momento sugerido: ${esc(e.momento)}. Medir: ${esc(e.medir)}.</p>`;
+    if ($("#c-prev")) cartelDesdeGenerador();
   }
   function initGenerador() {
     $("#g-perfil").innerHTML = D.estrategias.map((e) => `<option value="${e.id}">${esc(e.titulo)}</option>`).join("");
@@ -463,6 +466,135 @@
       setTimeout(() => ($("#g-copiar").textContent = "Copiar"), 1500);
     });
     generar();
+  }
+
+  /* ---------- Cartel (imagen generada con plantillas SVG) ---------- */
+  const PAL = { paper: "#f5efe3", surface: "#fffdf8", ink: "#17241f", green: "#1f5c48", night: "#14302a", marigold: "#e58a0a", coral: "#c8452c", soft: "#fbe8c6" };
+  const FORMATOS = { cartel: [1080, 1350], post: [1080, 1080], historia: [1080, 1920] };
+  const SERIF = "Georgia, 'Times New Roman', serif", SANS = "'Helvetica Neue', Helvetica, Arial, sans-serif", MONO = "Menlo, 'Courier New', monospace";
+  // Ilustraciones en una caja de 400×400; c = color principal, a = acento
+  const ILU = {
+    urna: (c, a) => `<g transform="rotate(-8 200 115)"><rect x="140" y="30" width="120" height="160" rx="10" fill="${PAL.surface}" stroke="${PAL.ink}" stroke-width="7"/><path d="M170 80 L230 140 M230 80 L170 140" stroke="${a}" stroke-width="16" stroke-linecap="round"/></g>
+      <rect x="60" y="170" width="280" height="200" rx="22" fill="${c}"/><rect x="60" y="170" width="280" height="46" rx="18" fill="${PAL.ink}" opacity=".22"/><rect x="140" y="184" width="120" height="16" rx="8" fill="${PAL.ink}" opacity=".55"/>`,
+    escudo: (c, a, k = PAL.surface) => `<path d="M200 30 L335 80 V190 C335 285 275 340 200 372 C125 340 65 285 65 190 V80 Z" fill="${c}"/><path d="M200 62 L305 100 V190 C305 262 258 307 200 334 Z" fill="${PAL.ink}" opacity=".12"/>
+      <path d="M135 200 L185 250 L275 150" fill="none" stroke="${k}" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>`,
+    familia: (c, a) => `<circle cx="140" cy="110" r="46" fill="${c}"/><rect x="78" y="168" width="124" height="190" rx="56" fill="${c}"/><circle cx="262" cy="140" r="38" fill="${a}"/><rect x="210" y="188" width="104" height="170" rx="48" fill="${a}"/>
+      <g transform="rotate(10 300 230)"><rect x="276" y="196" width="68" height="86" rx="7" fill="${PAL.surface}" stroke="${PAL.ink}" stroke-width="5"/><path d="M294 222 L326 254 M326 222 L294 254" stroke="${PAL.coral}" stroke-width="8" stroke-linecap="round"/></g>`,
+    calendario: (c, a) => `<rect x="70" y="70" width="260" height="280" rx="24" fill="${PAL.surface}" stroke="${PAL.ink}" stroke-width="7"/><path d="M70 94 a24 24 0 0 1 24 -24 h212 a24 24 0 0 1 24 24 v58 h-260 z" fill="${c}"/>
+      <rect x="125" y="45" width="18" height="56" rx="9" fill="${PAL.ink}"/><rect x="257" y="45" width="18" height="56" rx="9" fill="${PAL.ink}"/>
+      <text x="200" y="135" text-anchor="middle" font-family="${MONO}" font-size="34" font-weight="700" fill="${PAL.surface}">JUNIO</text>
+      <text x="200" y="300" text-anchor="middle" font-family="${SERIF}" font-size="150" font-weight="700" fill="${PAL.ink}">6</text><circle cx="290" cy="320" r="26" fill="${a}"/>`,
+    credencial: (c, a) => `<rect x="40" y="100" width="320" height="210" rx="24" fill="${PAL.surface}" stroke="${PAL.ink}" stroke-width="7"/><rect x="40" y="100" width="320" height="52" rx="22" fill="${c}"/><rect x="40" y="130" width="320" height="22" fill="${c}"/>
+      <circle cx="115" cy="225" r="42" fill="${a}"/><rect x="180" y="190" width="140" height="16" rx="8" fill="${PAL.ink}" opacity=".7"/><rect x="180" y="222" width="110" height="14" rx="7" fill="${PAL.ink}" opacity=".35"/><rect x="180" y="250" width="125" height="14" rx="7" fill="${PAL.ink}" opacity=".35"/>
+      <circle cx="320" cy="300" r="34" fill="${PAL.green}"/><path d="M304 300 L316 312 L338 288" fill="none" stroke="${PAL.surface}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>`,
+    pin: (c, a, k = PAL.surface) => `<ellipse cx="200" cy="350" rx="110" ry="20" fill="${PAL.ink}" opacity=".15"/><path d="M200 345 C150 270 95 215 95 150 a105 105 0 0 1 210 0 C305 215 250 270 200 345 Z" fill="${c}"/>
+      <circle cx="200" cy="150" r="52" fill="${k}"/><path d="M178 128 L222 172 M222 128 L178 172" stroke="${a}" stroke-width="13" stroke-linecap="round"/>`,
+    sube: (c, a) => `<rect x="60" y="250" width="70" height="110" rx="10" fill="${c}" opacity=".55"/><rect x="165" y="180" width="70" height="180" rx="10" fill="${c}" opacity=".8"/><rect x="270" y="100" width="70" height="260" rx="10" fill="${c}"/>
+      <path d="M80 210 L190 140 L300 60" fill="none" stroke="${a}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><path d="M262 52 L304 56 L296 96" fill="none" stroke="${a}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>`,
+    conteo: (c, a) => ILU.urna(c, a) + `<circle cx="300" cy="300" r="62" fill="${PAL.surface}" stroke="${PAL.ink}" stroke-width="12"/><path d="M345 345 L385 385" stroke="${PAL.ink}" stroke-width="18" stroke-linecap="round"/><path d="M272 300 L292 320 L328 282" fill="none" stroke="${PAL.green}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>`,
+    dato: (c, a, k = PAL.surface) => `<path d="M70 70 h260 a30 30 0 0 1 30 30 v150 a30 30 0 0 1 -30 30 h-150 l-70 60 v-60 h-40 a30 30 0 0 1 -30 -30 v-150 a30 30 0 0 1 30 -30 z" fill="${c}"/>
+      <path d="M140 175 L185 220 L265 135" fill="none" stroke="${k}" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/><circle cx="335" cy="320" r="30" fill="${a}"/>`,
+  };
+  const ILU_TEMA = { seguridad: "escudo", confianza: "conteo", desinformacion: "dato", reglas: "calendario", practico: "credencial" };
+  const ILU_PERFIL = { P1H: "urna", P1M: "credencial", P2: "calendario", P3: "pin", P4: "sube", P5: "familia", P6: "familia" };
+  const CART = { formato: "cartel", diseno: "boleta" };
+
+  function envolver(texto, max) { // corta en líneas de ~max caracteres
+    const out = []; let l = "";
+    String(texto).split(/\s+/).forEach((w) => { if ((l + " " + w).trim().length > max && l) { out.push(l); l = w; } else l = (l + " " + w).trim(); });
+    if (l) out.push(l);
+    return out;
+  }
+  const xmlEsc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  function lineas(arr, x, y, size, lh, attrs) {
+    return `<text x="${x}" y="${y}" font-size="${size}" ${attrs}>${arr.map((l, i) => `<tspan x="${x}" dy="${i ? size * lh : 0}">${xmlEsc(l)}</tspan>`).join("")}</text>`;
+  }
+  function cartelSVG() {
+    const [W, H] = FORMATOS[CART.formato], d = CART.diseno;
+    const perfil = $("#g-perfil").value, tema = $("#g-tema").value;
+    const iluK = (tema && ILU_TEMA[tema]) || ILU_PERFIL[perfil] || "urna";
+    const temaColor = tema ? D.temas[tema].color : PAL.green;
+    const noche = d === "noche";
+    const bg = noche ? PAL.night : PAL.paper, fg = noche ? PAL.paper : PAL.ink;
+    const est = $("#c-estado").value;
+    const eyebrow = (est ? ESTADO[est].n.toUpperCase() + " · " : "") + "ELECCIÓN FEDERAL 2027";
+    const tit = $("#c-titular").value.trim(), txt = $("#c-texto").value.trim();
+    const M = 80, cuadrado = CART.formato === "post", alto = CART.formato === "historia";
+    const titSize = cuadrado ? 84 : alto ? 112 : 100, bodySize = cuadrado ? 34 : alto ? 44 : 40;
+    const titL = envolver(tit, Math.floor((W - 2 * M) / (titSize * 0.5))).slice(0, 3);
+    const bodyL = envolver(txt, Math.floor((W - 2 * M) / (bodySize * 0.5))).slice(0, cuadrado ? 4 : 6);
+    // alturas
+    const iluS = cuadrado ? 330 : alto ? 620 : 470;
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s += `<rect width="${W}" height="${H}" fill="${bg}"/>`;
+    let y;
+    if (d === "bloque") {
+      const bh = iluS + 170;
+      s += `<rect width="${W}" height="${bh}" fill="${temaColor}"/><circle cx="${W - 60}" cy="70" r="150" fill="${PAL.surface}" opacity=".12"/><circle cx="70" cy="${bh - 90}" r="70" fill="${PAL.ink}" opacity=".08"/>`;
+      s += `<text x="${M}" y="${M + 30}" font-family="${MONO}" font-size="28" font-weight="700" letter-spacing="3" fill="${PAL.surface}">${xmlEsc(eyebrow)}</text>`;
+      s += `<g transform="translate(${(W - iluS) / 2} ${M + 70}) scale(${iluS / 400})">${ILU[iluK](PAL.surface, PAL.marigold, temaColor)}</g>`;
+      y = bh + 90;
+    } else {
+      s += `<rect x="28" y="28" width="${W - 56}" height="${H - 56}" rx="26" fill="none" stroke="${noche ? PAL.marigold : PAL.ink}" stroke-opacity=".35" stroke-width="3" stroke-dasharray="14 10"/>`;
+      s += `<text x="${M}" y="${M + 44}" font-family="${MONO}" font-size="28" font-weight="700" letter-spacing="3" fill="${PAL.marigold}">${xmlEsc(eyebrow)}</text>`;
+      if (!noche) s += `<g transform="translate(${W - 190} 70) rotate(12)" opacity=".9"><rect width="130" height="130" rx="18" fill="none" stroke="${PAL.coral}" stroke-width="7"/><path d="M32 32 L98 98 M98 32 L32 98" stroke="${PAL.coral}" stroke-width="12" stroke-linecap="round"/></g>`;
+      s += `<g transform="translate(${(W - iluS) / 2} ${M + 90}) scale(${iluS / 400})">${ILU[iluK](noche ? PAL.marigold : temaColor, noche ? PAL.coral : PAL.marigold)}</g>`;
+      y = M + 90 + iluS + 90;
+    }
+    s += lineas(titL, M, y, titSize, 1.08, `font-family="${SERIF}" font-weight="700" fill="${fg}"`);
+    y += titSize * 1.08 * (titL.length - 1) + titSize * 0.35;
+    s += `<rect x="${M}" y="${y}" width="120" height="10" rx="5" fill="${PAL.marigold}"/>`;
+    y += 40 + bodySize;
+    const pieY = H - (cuadrado ? 150 : 190);
+    const cabe = Math.max(1, Math.floor((pieY - 50 - y) / (bodySize * 1.35)) + 1);
+    if (bodyL.length > cabe) { bodyL.length = cabe; bodyL[cabe - 1] = bodyL[cabe - 1].replace(/[\s,.;:]*\S*$/, "") + "…"; }
+    s += lineas(bodyL, M, y, bodySize, 1.35, `font-family="${SANS}" fill="${fg}" fill-opacity=".9"`);
+    s += `<rect x="${M}" y="${pieY}" width="${W - 2 * M}" height="${cuadrado ? 84 : 100}" rx="${cuadrado ? 42 : 50}" fill="${noche ? PAL.marigold : PAL.green}"/>`;
+    s += `<text x="${W / 2}" y="${pieY + (cuadrado ? 54 : 63)}" text-anchor="middle" font-family="${SANS}" font-size="${cuadrado ? 29 : 32}" font-weight="700" fill="${noche ? PAL.ink : PAL.surface}">Domingo 6 de junio · Consulta tu casilla en ine.mx</text>`;
+    s += `<text x="${W / 2}" y="${H - 44}" text-anchor="middle" font-family="${MONO}" font-size="20" fill="${fg}" fill-opacity=".55">· No es material oficial del INE</text>`;
+    return s + `</svg>`;
+  }
+  function revisarCartel() {
+    const t = norm($("#c-titular").value + " " + $("#c-texto").value);
+    const f = D.reglasValidador.filter((r) => r.patron.test(t)).map((r) => r.motivo);
+    if (/en tu colonia, la mayoria/.test(t) && !$("#g-norma").checked) f.push("Usa norma social sin confirmar que la mayoría votó en la sección.");
+    $("#c-chequeo").className = f.length ? "badbox" : "okbox";
+    $("#c-chequeo").innerHTML = f.length ? `<p class="bad"><strong>Revisar:</strong></p><ul>${f.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="ok"><strong>✓ Cumple las reglas de tono.</strong></p>`;
+  }
+  function pintarCartel() {
+    const [W, H] = FORMATOS[CART.formato];
+    $("#c-prev").style.aspectRatio = `${W} / ${H}`;
+    $("#c-prev").innerHTML = cartelSVG();
+    revisarCartel();
+  }
+  function cartelDesdeGenerador() {
+    const perfil = $("#g-perfil").value, tema = $("#g-tema").value, g = G[perfil];
+    const partes = [];
+    if (perfil === "P5" && $("#g-norma").checked) partes.push(g.norma);
+    partes.push(g.gancho);
+    if (tema) partes.push(CERTEZA[tema].split(";")[0].replace(/\.$/, "") + ".");
+    $("#c-titular").value = g.titular;
+    $("#c-texto").value = partes.join(" ").slice(0, 220);
+    pintarCartel();
+  }
+  function descargar(nombre, blob) {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nombre;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  const nombreCartel = (ext) => `cartel-${$("#g-perfil").value}-${$("#g-tema").value || "general"}-${CART.formato}.${ext}`.toLowerCase();
+  function initCartel() {
+    $("#c-estado").innerHTML += D.estados.slice().sort((a, b) => a[1].localeCompare(b[1], "es")).map(([k, n]) => `<option value="${k}">${esc(n)}</option>`).join("");
+    [["#c-formato", "formato"], ["#c-diseno", "diseno"]].forEach(([sel_, key]) => $(sel_).addEventListener("click", (ev) => {
+      const b = ev.target.closest("button"); if (!b) return;
+      CART[key] = b.dataset.v; $(sel_).querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); pintarCartel();
+    }));
+    ["#c-titular", "#c-texto", "#c-estado"].forEach((s_) => $(s_).addEventListener("input", pintarCartel));
+    $("#c-svg").addEventListener("click", () => descargar(nombreCartel("svg"), new Blob([cartelSVG()], { type: "image/svg+xml" })));
+    $("#c-png").addEventListener("click", () => {
+      const [W, H] = FORMATOS[CART.formato], img = new Image();
+      img.onload = () => { const cv = document.createElement("canvas"); cv.width = W; cv.height = H; cv.getContext("2d").drawImage(img, 0, 0, W, H); cv.toBlob((b) => descargar(nombreCartel("png"), b), "image/png"); };
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(cartelSVG());
+    });
   }
 
   /* ---------- Piloto: EMD ---------- */
@@ -481,9 +613,10 @@
   renderPerfiles();
   renderEstrategias();
   renderTacticas();
+  initCartel();
   initGenerador();
   initEMD();
   let inicial = "perfiles";
-  try { inicial = localStorage.getItem("tab") || "perfiles"; } catch (e) {}
+  try { inicial = localStorage.getItem("tab") || "perfiles"; } catch (e) { }
   if (document.getElementById(inicial)) showTab(inicial);
 })();
