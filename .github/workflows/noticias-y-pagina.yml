@@ -1,0 +1,56 @@
+# Actualiza las noticias por estado cada día y publica la web en GitHub Pages.
+name: Actualizar noticias y publicar la web
+
+on:
+  schedule:
+    - cron: "17 12 * * *"   # todos los días a las 06:17 de Ciudad de México (12:17 UTC)
+  workflow_dispatch:         # botón "Run workflow" para correrlo a mano
+  push:
+    branches: [main]
+    paths: ["web/**"]
+
+permissions:
+  contents: write   # para guardar noticias.js en el repositorio
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Descargar noticias
+        # Si Google News falla, se conserva la caché anterior y la web se publica igual.
+        run: python3 web/scripts/actualizar_noticias.py || echo "::warning::No se pudieron actualizar las noticias; se conserva la caché anterior."
+
+      - name: Guardar noticias.js en el repositorio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/noticias.js
+          git diff --staged --quiet || (git commit -m "chore: actualizar noticias $(date -u +%F)" && git push)
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+  publicar:
+    needs: actualizar
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
