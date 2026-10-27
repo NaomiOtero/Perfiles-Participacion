@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Perfiles de Participación · INEgualables</title>
+  <title>Perfiles de Participación</title>
   <meta name="description" content="Prototipo: estrategias por perfil de participación, evidencia de tácticas, clima informativo y generador de mensajes para la elección federal de 2027.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -148,6 +148,46 @@
           <textarea id="g-texto" rows="8" aria-label="Mensaje generado; se puede editar"></textarea>
           <div id="g-chequeo"></div>
           <div id="g-porque" class="muted small"></div>
+        </div>
+      </div>
+
+      <div class="cartel-wrap" id="cartel">
+        <div class="cartel-head">
+          <div><p class="eyebrow" style="margin:0">Imagen para imprimir o compartir</p><h3 style="margin:.2rem 0 0">Cartel</h3></div>
+          <p class="muted small">Se arma con el perfil y el tema elegidos arriba. Puedes editar el texto.</p>
+        </div>
+        <div class="cartel-grid">
+          <div class="card cartel-ctrl">
+            <label>Formato
+              <span class="seg" id="c-formato" role="group">
+                <button type="button" data-v="cartel" aria-pressed="true">Cartel 4:5</button>
+                <button type="button" data-v="post" aria-pressed="false">Post 1:1</button>
+                <button type="button" data-v="historia" aria-pressed="false">Historia 9:16</button>
+              </span>
+            </label>
+            <label>Diseño
+              <span class="seg" id="c-diseno" role="group">
+                <button type="button" data-v="boleta" aria-pressed="true">Boleta</button>
+                <button type="button" data-v="bloque" aria-pressed="false">Bloque</button>
+                <button type="button" data-v="noche" aria-pressed="false">Noche</button>
+              </span>
+            </label>
+            <label>Estado (opcional)
+              <select id="c-estado"><option value="">Sin estado</option></select>
+            </label>
+            <label>Titular
+              <input id="c-titular" type="text" maxlength="60">
+            </label>
+            <label>Texto
+              <textarea id="c-texto" rows="4" maxlength="220"></textarea>
+            </label>
+            <div id="c-chequeo"></div>
+            <div class="modal-acc">
+              <button type="button" class="btn" id="c-png">Descargar PNG</button>
+              <button type="button" class="btn ghost" id="c-svg">Descargar SVG</button>
+            </div>
+          </div>
+          <div class="cartel-prev"><div id="c-prev"></div></div>
         </div>
       </div>
     </section>
