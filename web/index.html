@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Perfiles de Participación · INEgualables</title>
+  <meta name="description" content="Prototipo: estrategias por perfil de participación, evidencia de tácticas, clima informativo y generador de mensajes para la elección federal de 2027.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500..800,50&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="brand" href="#" data-tab="perfiles" aria-label="Inicio">
+        <span class="sello" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><rect x="3" y="3" width="26" height="26" rx="6"/><path d="M10 10 L22 22 M22 10 L10 22"/></svg>
+        </span>
+        <span>
+          <strong>Perfiles de Participación</strong>
+          <small>Hackea la participación 2026 · Reto 1</small>
+        </span>
+      </a>
+      <nav class="tabs" role="tablist" aria-label="Secciones">
+        <button role="tab" data-tab="perfiles" aria-selected="true"><span class="n">01</span>Perfiles</button>
+        <button role="tab" data-tab="estrategias"><span class="n">02</span>Estrategias</button>
+        <button role="tab" data-tab="evidencia"><span class="n">03</span>Evidencia</button>
+        <button role="tab" data-tab="clima"><span class="n">04</span>Clima</button>
+        <button role="tab" data-tab="mensajes"><span class="n">05</span>Mensajes</button>
+        <button role="tab" data-tab="piloto"><span class="n">06</span>Piloto</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap" id="contenido">
+    <!-- PERFILES -->
+    <section id="perfiles" class="panel active">
+      <div class="hero">
+        <div class="hero-txt reveal">
+          <p class="eyebrow">Elección federal · domingo 6 de junio de 2027</p>
+          <h1>No hay una ciudadanía que no vota. Hay <em>seis formas</em> de participar.</h1>
+          <p class="lead">Con los Conteos Censales de Participación Ciudadana 2009–2024 agrupamos 871,726 grupos de edad y sexo de cada sección en seis perfiles. Tres concentran la baja participación: <strong>47.9 %</strong> de la lista clasificada, unos <strong>41 millones</strong> de personas.</p>
+          <p class="nota-priv">Perfiles de grupos dentro de secciones, no de personas · Sin datos personales</p>
+        </div>
+        <figure class="boleta reveal" style="--d:.15s">
+          <figcaption>Composición de la lista nominal clasificada</figcaption>
+          <div id="barra" class="barra" role="img" aria-label="Porcentaje de la lista por perfil"></div>
+          <div id="barra-ley" class="barra-ley"></div>
+          <div class="boleta-pie"><span>Baja participación</span><span>Trayectorias a sostener</span></div>
+        </figure>
+      </div>
+
+      <ol class="como reveal" style="--d:.25s" aria-label="Cómo usar la plataforma">
+        <li><span>1</span><div><b>Conoce el perfil</b> de la sección o grupo que te interesa.</div></li>
+        <li><span>2</span><div><b>Elige la estrategia</b>: mensaje, canal y momento con evidencia.</div></li>
+        <li><span>3</span><div><b>Genera el mensaje</b> ajustado al clima informativo, con reglas de tono.</div></li>
+      </ol>
+
+      <h2 class="sec">Los seis perfiles <small>Toca uno para ver su detalle</small></h2>
+      <div id="perfil-cards" class="cards"></div>
+      <div id="perfil-detalle" class="card detalle" hidden></div>
+    </section>
+
+    <!-- ESTRATEGIAS -->
+    <section id="estrategias" class="panel">
+      <p class="eyebrow">02 · Estrategias</p>
+      <h2>Un mensaje, un canal y un momento para cada perfil</h2>
+      <p class="lead">Acciones de febrero a junio de 2027, cada una con su forma de medirla en el CCPC 2027.</p>
+      <div class="chips" id="estr-chips"></div>
+      <div id="estr-detalle"></div>
+      <h3>Calendario febrero – junio 2027</h3>
+      <div id="calendario" class="cal"></div>
+      <h3>Tres estrategias transversales</h3>
+      <div id="transversales" class="cards three"></div>
+    </section>
+
+    <!-- EVIDENCIA -->
+    <section id="evidencia" class="panel">
+      <p class="eyebrow">03 · Evidencia</p>
+      <h2>¿Qué tanto mueve cada táctica?</h2>
+      <p class="lead">Efectos medidos en experimentos de campo. Son efectos entre personas contactadas en otros países: el piloto debe probar qué funciona aquí.</p>
+      <div class="filters" id="f-canal" role="group" aria-label="Filtrar por canal"></div>
+      <div id="tacticas" class="card tac-list"></div>
+    </section>
+
+    <!-- CLIMA -->
+    <section id="clima" class="panel">
+      <p class="eyebrow">04 · Clima informativo</p>
+      <h2>¿Qué preocupa en cada estado?</h2>
+      <p class="lead">Noticias electorales de los últimos 14 días en medios mexicanos, clasificadas por tema. El índice resume qué tanto domina la cobertura que genera preocupación. Toca un estado en el mapa.</p>
+      <p id="clima-estado" class="nota-priv"></p>
+
+      <div class="clima-top">
+        <div class="card mapa-card">
+          <div class="mapa-head">
+            <strong>Índice de preocupación mediática</strong>
+            <button class="chip" id="btn-nacional" aria-pressed="true">Nacional</button>
+          </div>
+          <div id="mapa" class="mapa" role="group" aria-label="Mapa de mosaicos de los estados"></div>
+          <div class="escala"><span>0</span><i></i><span>100</span></div>
+        </div>
+        <div class="card ranking-card">
+          <strong>Estados con más preocupación</strong>
+          <ol id="ranking" class="ranking"></ol>
+          <details class="metodo">
+            <summary>¿Cómo se calcula?</summary>
+            <p>Índice (0–100) = 70 % × proporción de notas sobre <b>seguridad, confianza en la elección o desinformación</b> + 30 % × proporción de titulares con <b>tono negativo</b>.</p>
+            <p>Mide la cobertura en medios, no la opinión de la ciudadanía. Para medir preocupación real se puede validar con búsquedas en internet por estado o con encuestas.</p>
+          </details>
+        </div>
+      </div>
+
+      <div id="clima-detalle"></div>
+      <p class="muted small">Fuente: Google News (RSS público). Clasificación por palabras clave en el titular; puede equivocarse. Actualizar con <code>python3 scripts/actualizar_noticias.py</code>.</p>
+    </section>
+
+    <!-- MENSAJES -->
+    <section id="mensajes" class="panel">
+      <p class="eyebrow">05 · Mensajes</p>
+      <h2>Generador de mensajes</h2>
+      <p class="lead">Arma un mensaje según el perfil de la sección, el canal y el tema que domina el clima informativo. Las reglas impiden el miedo, la culpa y el contenido partidista.</p>
+      <div class="gen">
+        <form id="gen-form" class="card">
+          <label>Perfil de la sección
+            <select id="g-perfil"></select>
+          </label>
+          <label>Canal
+            <select id="g-canal">
+              <option value="sms">SMS / WhatsApp (con consentimiento)</option>
+              <option value="visita">Guion de visita del capacitador</option>
+              <option value="radio">Radio comunitaria (20 s)</option>
+              <option value="redes">Publicación en redes</option>
+              <option value="cartel">Cartel o volante</option>
+            </select>
+          </label>
+          <label>Tema del clima informativo
+            <select id="g-tema">
+              <option value="">Ninguno en particular</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" id="g-norma"> <span>En esta sección la mayoría votó en 2021 <small>(habilita el mensaje de norma social)</small></span></label>
+          <button type="submit" class="btn">Generar mensaje</button>
+        </form>
+        <div class="card salida">
+          <div class="salida-head"><strong>Vista previa</strong><button id="g-copiar" class="btn ghost" type="button">Copiar</button></div>
+          <textarea id="g-texto" rows="8" aria-label="Mensaje generado; se puede editar"></textarea>
+          <div id="g-chequeo"></div>
+          <div id="g-porque" class="muted small"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PILOTO -->
+    <section id="piloto" class="panel">
+      <p class="eyebrow">06 · Piloto</p>
+      <h2>Piloto aleatorizado 2027</h2>
+      <ol class="pasos">
+        <li><b>Unidad y asignación.</b> Secciones prioritarias en bloques de estado × perfil dominante; la mitad de cada bloque, al azar, recibe la estrategia.</li>
+        <li><b>Tratamientos.</b> Mensaje en la visita del capacitador y mensajes digitales, más un grupo de control.</li>
+        <li><b>Registro previo.</b> Publicar el plan de análisis antes de la jornada.</li>
+        <li><b>Resultado.</b> CCPC 2027 por celda: cambio 2021 → 2027 de las celdas objetivo.</li>
+      </ol>
+      <div class="card emd">
+        <h3>Efecto mínimo detectable</h3>
+        <p class="formula">EMD ≈ 2.8 · σ · √(1/n<sub>T</sub> + 1/n<sub>C</sub>) · √(1 − R²)</p>
+        <div class="sliders">
+          <label>σ entre secciones (pp) <output id="o-sigma"></output><input type="range" id="s-sigma" min="2" max="15" step="0.5" value="8"></label>
+          <label>Secciones por grupo <output id="o-n"></output><input type="range" id="s-n" min="100" max="5000" step="100" value="2000"></label>
+          <label>R² con la participación 2021 <output id="o-r2"></output><input type="range" id="s-r2" min="0" max="0.9" step="0.05" value="0"></label>
+        </div>
+        <p class="resultado"><span id="o-emd"></span><small> pp</small></p>
+        <p class="muted small">Supuestos ilustrativos. σ y R² deben calcularse con el CCPC 2021 antes de fijar el tamaño.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap muted small">
+    Prototipo del equipo INEgualables para Hackea la participación 2026. No es un sitio oficial del INE. Datos: CCPC 2009–2024 (INE, datos abiertos) y literatura citada en el documento técnico.
+  </footer>
+
+  <dialog id="nota-modal" class="modal" aria-labelledby="nota-titulo">
+    <div class="modal-card">
+      <button class="modal-cerrar" type="button" aria-label="Cerrar">✕</button>
+      <div class="modal-body"></div>
+    </div>
+  </dialog>
+
+  <script src="data.js"></script>
+  <script src="noticias.js"></script>
+  <script src="mapa-mx.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
